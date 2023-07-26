@@ -4,11 +4,14 @@ from resnet import *
 
 # Define the CLS model
 class CLSModel(nn.Module):
-    def __init__(self):
+    def __init__(self,pretrain, classes):
         super(CLSModel, self).__init__()
-        self.resnet50 = resnet50_quantizable(pretrained=True)
+        if pretrain == "resnet50":
+            self.resnet50 = resnet50_quantizable(pretrained=True)
+        if pretrain == "resnet152":
+            self.resnet50 = resnet50_quantizable(pretrained=True)
         in_features = self.resnet50.fc.in_features
-        self.resnet50.fc = nn.Linear(in_features, 120)
+        self.resnet50.fc = nn.Linear(in_features, classes)
         self.dropout1 = nn.Dropout(0.5)
         self.dropout2 = nn.Dropout(0.5)
         self.fc1 = nn.Linear(1024, 512)

@@ -10,11 +10,11 @@ from torchvision.datasets import ImageFolder
 import os
 import sys
 import time
+import streamlit as st
 sys.path.append(os.path.abspath('./model'))
 
 from model import CLSModel
 from size_model import print_size_of_model
-
 
 def train_test_split(data_path):
     # Tạo đối tượng ImageFolder và chia dữ liệu thành tập huấn luyện, tập kiểm tra và tập xác thực
@@ -61,7 +61,7 @@ def train(model, device, train_loader, optimizer, criterion, epoch):
         loss.backward()
         optimizer.step()
         if batch_idx % 100 == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            st.write('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                        100. * batch_idx / len(train_loader), loss.item()))
 
@@ -80,15 +80,12 @@ def validate(model, device, val_loader, criterion):
             correct += pred.eq(target.view_as(pred)).sum().item()
     val_loss /= len(val_loader.dataset)
     val_acc = 100. * correct / len(val_loader.dataset)
-    print('Validation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
+    st.write('Validation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
         val_loss, correct, len(val_loader.dataset), val_acc))
     return val_loss, val_acc
 
 
-def test_model(model, test_loader, device, checkpoint_path):
-    # Load checkpoint
-    #     checkpoint = torch.load(checkpoint_path)
-    #     model.load_state_dict(checkpoint)
+def test_model(model, test_loader, device):
     model.to(device)
 
     # Test model
@@ -104,15 +101,16 @@ def test_model(model, test_loader, device, checkpoint_path):
 
     test_loss /= len(test_loader.dataset)
     accuracy = 100. * correct / len(test_loader.dataset)
-    print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'
+    st.write('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'
           .format(test_loss, correct, len(test_loader.dataset), accuracy))
 
 
 # Define the main function for training the model
-def main():
+def main(pretrain,num_class):
     # Set the device
+    st.write("Model start training !!!")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(device)
+    st.write(device)
     data_path = "./data/new_data"
 
     # Load the data
@@ -122,7 +120,7 @@ def main():
 
     # Define the model, optimizer and loss function
     # Our initial baseline model which is FP32
-    float_model = CLSModel().to(device)
+    float_model = CLSModel(pretrain,num_class).to(device)
     model_fp32 = float_model
     model_fp32.train()
 
@@ -146,20 +144,20 @@ def main():
         t1 = time.time()
         train(model, device, train_loader, optimizer, criterion, epoch)
         val_loss, val_acc = validate(model, device, val_loader, criterion)
-        print("EST time per epoch:", time.time() - t1)
+        st.write("EST time per epoch:", time.time() - t1)
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             torch.save(model.state_dict(), best_checkpoint_path)
         torch.save(model.state_dict(), checkpoint_path)
 
-    print("Training completed!")
-
+    st.write("Training completed!")
+    test_model(model, test_loader, 'cuda')
     #calibrate process
     batch_images, batch_labels = next(iter(val_loader))
     model(batch_images.to('cuda'))
 
     #check the size of fp32 model
-    print()
+    st.write("Size of fp32 model:")
     print_size_of_model(model)
 
     #Move model to CPU and set eval in order to convert
@@ -168,9 +166,6 @@ def main():
 
     # Converts the model to a quantized model(int8)
     model_quantized = torch.quantization.convert(model)  # Quantize the model
+    st.write("Size of 8int model:")
     print_size_of_model(model_quantized)
-    test_model(model_quantized, test_loader, 'cpu', best_checkpoint_path)
-
-
-if __name__ == '__main__':
-  main()
+    test_model(model_quantized, test_loader, 'cpu')
