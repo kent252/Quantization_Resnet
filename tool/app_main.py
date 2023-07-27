@@ -1,6 +1,6 @@
 import streamlit as st
 import time
-from main_v2 import *
+from model_main import *
 
 
 def sec1():
@@ -12,6 +12,9 @@ def sec2():
     # with st.empty():
     st.write("ABC")
     time.sleep(1)
+def total():
+    sec1()
+    sec2()
 col1, col2 = st.columns(2)
 with col1:
     with st.form("my_form"):
@@ -19,24 +22,18 @@ with col1:
         pretrained = st.selectbox(
             'Pretrained Model?',
             ('resnet50', 'resnet152'))
-        path_to_data = st.selectbox(
-            'Data_set?',
-            ('Dog breed',))
+        path_to_data = st.text_input(
+            'Data_set?','./data/dog_breed')
         num_class = st.text_input(
-            'Number of classes')
+            'Number of classes','120')
         epoch = st.text_input(
-            'Number of epoch')
+            'Number of epoch','10')
         # Every form must have a submit button.
         submitted = st.form_submit_button("Submit")
 with col2:
     if submitted:
-        with st.empty():
-            # print(type(pretrained), type(num_class))
-            # main(pretrained,int(num_class))
-            for i in range(int(num_class)):
-                sec1()
-                sec2()
-
+            train_model(pretrained,int(num_class),int(epoch))
+            inference_quant(pretrained,int(num_class))
 
 
 

@@ -3,8 +3,21 @@ import random
 import shutil
 
 # Define paths to data directory and output directory
-data_dir = '/Users/vuanh/PycharmProjects/pythonProject/data/Images'
-output_dir = '/Users/vuanh/PycharmProjects/pythonProject/data/new_data'
+import argparse
+
+parser = argparse.ArgumentParser()
+
+# Thêm các đối số cho chương trình
+parser.add_argument('--input', type=str, help='Dataset path',default= './data/Images')
+parser.add_argument('--output', type=str, help='New dataset path',default='./data/dog_breed')
+
+# Lấy các đối số từ dòng lệnh
+args = parser.parse_args()
+
+# Sử dụng các đối số trong chương trình
+data_dir = args.input
+output_dir = args.output
+
 
 # Define subdirectories for train, validate, and test
 train_dir = os.path.join(output_dir, 'train')

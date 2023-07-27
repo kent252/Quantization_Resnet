@@ -9,7 +9,7 @@ class CLSModel(nn.Module):
         if pretrain == "resnet50":
             self.resnet50 = resnet50_quantizable(pretrained=True)
         if pretrain == "resnet152":
-            self.resnet50 = resnet50_quantizable(pretrained=True)
+            self.resnet50 = resnet152_quantizable(pretrained=True)
         in_features = self.resnet50.fc.in_features
         self.resnet50.fc = nn.Linear(in_features, classes)
         self.dropout1 = nn.Dropout(0.5)
