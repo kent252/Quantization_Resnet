@@ -9,6 +9,7 @@ Install the requirement package in the requirement.txt
 
 ## Datasets
 Before using this code, please to download the data from: [Dog breeds kaggle](https://www.kaggle.com/datasets/jessicali9530/stanford-dogs-dataset)
+and put it in the data folder
 
 And then run the following command to prepare the dataset
 

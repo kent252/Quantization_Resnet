@@ -32,8 +32,8 @@ with col1:
         submitted = st.form_submit_button("Submit")
 with col2:
     if submitted:
-            train_model(pretrained,int(num_class),int(epoch))
-            inference_quant(pretrained,int(num_class))
+            train_model(pretrained,int(num_class),int(epoch),path_to_data)
+            inference_quant(pretrained,int(num_class),path_to_data)
 
 
 

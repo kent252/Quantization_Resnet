@@ -107,7 +107,7 @@ def test_model(model, test_loader, device,mode):
 
 
 # Define the main function for training the model
-def train_model(pretrain,num_class = 120,num_epochs = 30,data_path = "./data/dog_breed"):
+def train_model(pretrain,num_class = 120,num_epochs = 10,data_path = "./data/dog_breed"):
     # Set the device
     st.write("Model start training !!!")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
